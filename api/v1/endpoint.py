@@ -22,6 +22,11 @@ def _url_count_req_params(req_json):
 
 
 def _resp_header(resp):
+    """
+    private method to enable Cross Origin Resources Sharing(CORS)
+    :param resp: Flask Response instance
+    :return: Flask Response instance
+    """
     resp.headers['Access-Control-Allow-Origin'] = '*'
     resp.headers['Access-Control-Allow-Methods'] = 'POST'
     resp.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from flask import jsonify
 from flask import request
 
@@ -13,20 +15,15 @@ def _url_count_req_params(req_json):
     :return: params tuple
     """
     url = req_json.get('url')
-    sp = req_json.get('sp_code', 'sdo')
+    sp = req_json.get('sp_code')
     begin_time = req_json.get('beginTime')
     end_time = req_json.get('endTime')
-    page = req_json.get('page')
-    size = req_json.get('size')
+    page = req_json.get('page', '')
+    size = req_json.get('size', '')
     return url, sp, begin_time, end_time, page, size
 
 
 def _resp_header(resp):
-    """
-    private method to enable Cross Origin Resources Sharing(CORS)
-    :param resp: Flask Response instance
-    :return: Flask Response instance
-    """
     resp.headers['Access-Control-Allow-Origin'] = '*'
     resp.headers['Access-Control-Allow-Methods'] = 'POST'
     resp.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
@@ -41,49 +38,105 @@ def _req_body_illegal():
     resp.status_code = 400
     return resp
 
+# Paging API begins
 
-@api_version.route('/url-req-status-count', methods=['POST', 'OPTIONS'])
-def find_url_req_num_status():
+
+@api_version.route('/url-req-status-count-page', methods=['POST', 'OPTIONS'])
+def find_url_req_num_status_page():
     resp = jsonify({})
     if request.method == 'POST':
         req_json = request.get_json(silent=True)
         if not req_json or 'page' not in req_json or 'size' not in req_json or 'url' not in req_json \
-                or 'beginTime' not in req_json or 'endTime' not in req_json:
+                or 'sp_code' not in req_json or 'beginTime' not in req_json or 'endTime' not in req_json:
             return _req_body_illegal()
         url, sp, begin_time, end_time, page, size = _url_count_req_params(req_json)
-        result = urlcountservice.find_url_req_num_status(url, sp, begin_time, end_time, page, size)
+        logging.debug('Request params: {},{},{},{},{},{}'.format(url, sp, begin_time, end_time, page, size))
+        result = urlcountservice.find_url_req_num_status_page(url, sp, begin_time, end_time, page, size)
         resp = jsonify(result)
     resp = _resp_header(resp)
     return resp
 
 
-@api_version.route('/url-req-count', methods=['POST', 'OPTIONS'])
-def find_url_req_num():
+@api_version.route('/url-req-count-page', methods=['POST', 'OPTIONS'])
+def find_url_req_num_page():
     resp = jsonify({})
     if request.method == 'POST':
         req_json = request.get_json(silent=True)
         if not req_json or 'page' not in req_json or 'size' not in req_json or 'url' not in req_json \
-                or 'beginTime' not in req_json or 'endTime' not in req_json:
+                or 'sp_code' not in req_json or 'beginTime' not in req_json or 'endTime' not in req_json:
             return _req_body_illegal()
         req_json = request.get_json()
         url, sp, begin_time, end_time, page, size = _url_count_req_params(req_json)
-        result = urlcountservice.find_url_req_num(url, sp, begin_time, end_time, page, size)
+        logging.debug('Request params: {},{},{},{},{},{}'.format(url, sp, begin_time, end_time, page, size))
+        result = urlcountservice.find_url_req_num_page(url, sp, begin_time, end_time, page, size)
         resp = jsonify(result)
     resp = _resp_header(resp)
     return resp
 
 
-@api_version.route('/url-status', methods=['POST', 'OPTIONS'])
-def find_url_status():
+@api_version.route('/url-status-page', methods=['POST', 'OPTIONS'])
+def find_url_status_page():
     resp = jsonify({})
     if request.method == 'POST':
         req_json = request.get_json(silent=True)
         if not req_json or 'page' not in req_json or 'size' not in req_json or 'url' not in req_json \
+                or 'sp_code' not in req_json or 'beginTime' not in req_json or 'endTime' not in req_json:
+            return _req_body_illegal()
+        req_json = request.get_json()
+        url, sp, begin_time, end_time, page, size = _url_count_req_params(req_json)
+        logging.debug('Request params: {},{},{},{},{},{}'.format(url, sp, begin_time, end_time, page, size))
+        result = urlcountservice.find_url_status_page(url, sp, begin_time, end_time, page, size)
+        resp = jsonify(result)
+    resp = _resp_header(resp)
+    return resp
+
+# No paging API begins
+
+@api_version.route('/url-req-status-count-all', methods=['POST', 'OPTIONS'])
+def find_url_req_num_status_all():
+    resp = jsonify({})
+    if request.method == 'POST':
+        req_json = request.get_json(silent=True)
+        if not req_json or 'url' not in req_json \
+                or 'sp_code' not in req_json or 'beginTime' not in req_json or 'endTime' not in req_json:
+            return _req_body_illegal()
+        url, sp, begin_time, end_time, page, size = _url_count_req_params(req_json)
+        logging.debug('Request params: {},{},{},{},{},{}'.format(url, sp, begin_time, end_time, page, size))
+        result = urlcountservice.find_url_req_num_status_no_page(url, sp, begin_time, end_time)
+        resp = jsonify(result)
+    resp = _resp_header(resp)
+    return resp
+
+
+@api_version.route('/url-req-count-all', methods=['POST', 'OPTIONS'])
+def find_url_req_num_all():
+    resp = jsonify({})
+    if request.method == 'POST':
+        req_json = request.get_json(silent=True)
+        if not req_json or 'url' not in req_json or 'sp_code' not in req_json \
                 or 'beginTime' not in req_json or 'endTime' not in req_json:
             return _req_body_illegal()
         req_json = request.get_json()
         url, sp, begin_time, end_time, page, size = _url_count_req_params(req_json)
-        result = urlcountservice.find_url_status(url, sp, begin_time, end_time, page, size)
+        logging.debug('Request params: {},{},{},{},{},{}'.format(url, sp, begin_time, end_time, page, size))
+        result = urlcountservice.find_url_req_num_no_page(url, sp, begin_time, end_time)
+        resp = jsonify(result)
+    resp = _resp_header(resp)
+    return resp
+
+
+@api_version.route('/url-status-all', methods=['POST', 'OPTIONS'])
+def find_url_status_all():
+    resp = jsonify({})
+    if request.method == 'POST':
+        req_json = request.get_json(silent=True)
+        if not req_json or 'url' not in req_json or 'sp_code' not in req_json \
+                or 'beginTime' not in req_json or 'endTime' not in req_json:
+            return _req_body_illegal()
+        req_json = request.get_json()
+        url, sp, begin_time, end_time, page, size = _url_count_req_params(req_json)
+        logging.debug('Request params: {},{},{},{},{},{}'.format(url, sp, begin_time, end_time, page, size))
+        result = urlcountservice.find_url_status_no_page(url, sp, begin_time, end_time)
         resp = jsonify(result)
     resp = _resp_header(resp)
     return resp

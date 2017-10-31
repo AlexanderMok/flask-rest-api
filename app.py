@@ -18,7 +18,7 @@ def _create_app():
 
 
 def _register_blueprints(app):
-    _url_prefix = '/rest/query/api/{version}'.format(version=config.API_VERSION_V1)
+    _url_prefix = '/rest/portal/query/api/{version}'.format(version=config.API_VERSION_V1)
     app.register_blueprint(api_version, url_prefix=_url_prefix)
     return app
 
@@ -54,4 +54,4 @@ def _set_logging(app):
 
 if __name__ == '__main__':
     _app = _create_app()
-    _app.run(host=config.app_config['host'], port=config.app_config['port'])
+    _app.run(host=config.app_config['host'], port=config.app_config['port'], debug=True)
